@@ -8,26 +8,36 @@
 
 #import "AppDelegate.h"
 
-#import "ViewController.h"
+#import "ClassLIstViewController.h"
 
 @implementation AppDelegate
 
 @synthesize window = _window;
-@synthesize viewController = _viewController;
+@synthesize classListViewController = _classListViewController;
+@synthesize customerId = _customerId;
 
 - (void)dealloc
 {
     [_window release];
-    [_viewController release];
+    [_classListViewController release];
+    [_customerId release];
     [super dealloc];
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    
+    self.customerId = [[NSString alloc] init];
+    self.customerId = @"8Ep1dfv6d6";
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
     // Override point for customization after application launch.
-    self.viewController = [[[ViewController alloc] initWithNibName:@"ViewController" bundle:nil] autorelease];
-    self.window.rootViewController = self.viewController;
+    self.classListViewController = [[[ClassListViewController alloc] initWithNibName:@"ClassListViewController" bundle:nil] autorelease];
+    UINavigationController * navigation = [[UINavigationController alloc] init];
+    [navigation pushViewController:self.classListViewController animated:YES];
+    
+    [self.window addSubview:navigation.view];
+
+    //self.window.rootViewController = self.classListViewController;
     [self.window makeKeyAndVisible];
     return YES;
 }
