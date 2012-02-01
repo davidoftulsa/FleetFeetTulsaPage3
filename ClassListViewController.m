@@ -21,7 +21,11 @@
     if (self) {
         self.locationManager = [[[CLLocationManager alloc] init] autorelease];
         self.locationManager.delegate = self; // send loc updates to myself
+        [self.locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
+        [self.locationManager startUpdatingLocation];
         self.myLocation = [[CLLocation alloc] init];
+        [self.tableView setRowHeight:76];
+        
     }
     return self;
 }
@@ -152,20 +156,10 @@
     [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
         if (!error) {
             // The find succeeded.
-            //NSLog(@"Successfully retrieved %d scores.", objects.count);
             [self setCustomerClasses:objects];
             
             [myTableView reloadData];
-            /*
-            for (PFObject *pfo in customerClasses)
-            {
-                NSLog(@"Email Address: %@",[pfo objectForKey:@"EmailAddress"]);
-                NSLog(@"First Name: %@",[pfo objectForKey:@"FirstName"]);
-                NSLog(@"Last Name: %@",[pfo objectForKey:@"LastName"]);
-                NSLog(@"id: %@",pfo.objectId);
-                
-            }
-             */
+            
             
         } else {
             // Log details of the failure
@@ -199,7 +193,8 @@
     //insert checkin record
     //notify user of success or failure
     
-    __block BOOL existingCheckIn =  NO;
+    BOOL existingCheckIn =  NO;
+    BOOL userAtValidLocation =  NO;
     
     
     self.navigationItem.rightBarButtonItem.enabled = NO;
@@ -233,9 +228,28 @@
             existingCheckIn = YES;
         }
     }
+    
+    
+    if([CLLocationManager locationServicesEnabled])
+        {
+        
+    
+    // User's location
+    PFGeoPoint *userPoint = [PFGeoPoint geoPointWithLatitude:myLocation.coordinate.latitude longitude:myLocation.coordinate.longitude];
+    // Create a query for places
+    PFQuery *query = [PFQuery queryWithClassName:@"Locations"];
+    // Interested in locations near user.
+    [query whereKey:@"Coordinates" nearGeoPoint:userPoint withinKilometers:1];
+    // Limit what could be a lot of points.
+    //query.limit = [NSNumber numberWithInt:10];
+    // Final list of objects
+    NSArray *placesObjects = [query findObjects];
+    
+    if(placesObjects.count>0)
+        userAtValidLocation=YES;
 
 
-    if (existingCheckIn==NO){
+    if (existingCheckIn==NO && userAtValidLocation==YES){
     PFObject *gameScore = [PFObject objectWithClassName:@"CheckIn"];
     [gameScore setObject:[customerClass objectForKey:@"ClassOfferingId"] forKey:@"ClassOfferingId"];
     [gameScore setObject:appDelegate.customerId forKey:@"CustomerId"];
@@ -251,15 +265,48 @@
         [alert show];
         [alert release];
     } else {
+        
+        if(existingCheckIn==YES){
        
         UIAlertView *alert = [[UIAlertView alloc]
                               initWithTitle: @"Error"
-                              message: @"You are already checked in to this class."
+                              message: @"You have already checked in to this class."
                               delegate: nil
                               cancelButtonTitle:@"OK"
                               otherButtonTitles:nil];
         [alert show];
         [alert release];
+        }else{
+            
+            if(userAtValidLocation==NO){
+                
+                UIAlertView *alert = [[UIAlertView alloc]
+                                      initWithTitle: @"Error"
+                                      message: @"You must be at one of the Fleet Feet locations to check in to a class."
+                                      delegate: nil
+                                      cancelButtonTitle:@"OK"
+                                      otherButtonTitles:nil];
+                [alert show];
+                [alert release];
+                
+            }
+        
+        
+        }
+    }
+    }    //if([CLLocationManager locationServicesEnabled])     
+    else
+    {
+        
+        UIAlertView *alert = [[UIAlertView alloc]
+                              initWithTitle: @"Error"
+                              message: @"You must allow location services to use this app."
+                              delegate: nil
+                              cancelButtonTitle:@"OK"
+                              otherButtonTitles:nil];
+        [alert show];
+        [alert release];
+    
     }
     
     [self hideLoadingIndicator];
