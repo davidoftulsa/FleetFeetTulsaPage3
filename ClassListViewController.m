@@ -52,9 +52,7 @@
     self.navigationItem.rightBarButtonItem.enabled = NO;
     [checkInButton release];
 
-    
-    
-    
+    [self showLoadingIndicator];
     
     // Do any additional setup after loading the view from its nib.
 }
@@ -160,6 +158,8 @@
             
             [myTableView reloadData];
             
+            [self hideLoadingIndicator];
+            
             
         } else {
             // Log details of the failure
@@ -193,13 +193,21 @@
     //insert checkin record
     //notify user of success or failure
     
-    BOOL existingCheckIn =  NO;
-    BOOL userAtValidLocation =  NO;
-    
-    
     self.navigationItem.rightBarButtonItem.enabled = NO;
     [self showLoadingIndicator];
     
+    
+    [NSThread detachNewThreadSelector:@selector(checkInToClassBackground) toTarget:self withObject:nil];
+    
+    }
+
+
+-(void)checkInToClassBackground{
+    
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
+    BOOL existingCheckIn =  NO;
+    BOOL userAtValidLocation =  NO;
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     PFObject *customerClass = [customerClasses objectAtIndex:[[myTableView indexPathForSelectedRow] row]];
@@ -231,93 +239,97 @@
     
     
     if([CLLocationManager locationServicesEnabled])
-        {
+    {
         
-    
-    // User's location
-    PFGeoPoint *userPoint = [PFGeoPoint geoPointWithLatitude:myLocation.coordinate.latitude longitude:myLocation.coordinate.longitude];
-    // Create a query for places
-    PFQuery *query = [PFQuery queryWithClassName:@"Locations"];
-    // Interested in locations near user.
-    [query whereKey:@"Coordinates" nearGeoPoint:userPoint withinKilometers:1];
-    // Limit what could be a lot of points.
-    //query.limit = [NSNumber numberWithInt:10];
-    // Final list of objects
-    NSArray *placesObjects = [query findObjects];
-    
-    if(placesObjects.count>0)
-        userAtValidLocation=YES;
-
-
-    if (existingCheckIn==NO && userAtValidLocation==YES){
-    PFObject *gameScore = [PFObject objectWithClassName:@"CheckIn"];
-    [gameScore setObject:[customerClass objectForKey:@"ClassOfferingId"] forKey:@"ClassOfferingId"];
-    [gameScore setObject:appDelegate.customerId forKey:@"CustomerId"];
-    [gameScore setObject:@"MgEUZbw6tB" forKey:@"LocationId"];
-    [gameScore save];
         
-        UIAlertView *alert = [[UIAlertView alloc]
-                              initWithTitle: @"Success"
-                              message: @"You are checked in to the class."
-                              delegate: nil
-                              cancelButtonTitle:@"OK"
-                              otherButtonTitles:nil];
-        [alert show];
-        [alert release];
-    } else {
+        // User's location
+        PFGeoPoint *userPoint = [PFGeoPoint geoPointWithLatitude:myLocation.coordinate.latitude longitude:myLocation.coordinate.longitude];
+        // Create a query for places
+        PFQuery *query = [PFQuery queryWithClassName:@"Locations"];
+        // Interested in locations near user.
+        [query whereKey:@"Coordinates" nearGeoPoint:userPoint withinKilometers:1];
+        // Limit what could be a lot of points.
+        //query.limit = [NSNumber numberWithInt:10];
+        // Final list of objects
+        NSArray *placesObjects = [query findObjects];
         
-        if(existingCheckIn==YES){
-       
-        UIAlertView *alert = [[UIAlertView alloc]
-                              initWithTitle: @"Error"
-                              message: @"You have already checked in to this class."
-                              delegate: nil
-                              cancelButtonTitle:@"OK"
-                              otherButtonTitles:nil];
-        [alert show];
-        [alert release];
-        }else{
+        if(placesObjects.count>0)
+            userAtValidLocation=YES;
+        
+        
+        if (existingCheckIn==NO && userAtValidLocation==YES){
+            PFObject *gameScore = [PFObject objectWithClassName:@"CheckIn"];
+            [gameScore setObject:[customerClass objectForKey:@"ClassOfferingId"] forKey:@"ClassOfferingId"];
+            [gameScore setObject:appDelegate.customerId forKey:@"CustomerId"];
+            [gameScore setObject:@"MgEUZbw6tB" forKey:@"LocationId"];
+            [gameScore save];
             
-            if(userAtValidLocation==NO){
+            UIAlertView *alert = [[UIAlertView alloc]
+                                  initWithTitle: @"Success"
+                                  message: @"You are checked in to the class."
+                                  delegate: nil
+                                  cancelButtonTitle:@"OK"
+                                  otherButtonTitles:nil];
+            [alert show];
+            [alert release];
+        } else {
+            
+            if(existingCheckIn==YES){
                 
                 UIAlertView *alert = [[UIAlertView alloc]
                                       initWithTitle: @"Error"
-                                      message: @"You must be at one of the Fleet Feet locations to check in to a class."
+                                      message: @"You have already checked in to this class."
                                       delegate: nil
                                       cancelButtonTitle:@"OK"
                                       otherButtonTitles:nil];
                 [alert show];
                 [alert release];
+            }else{
+                
+                if(userAtValidLocation==NO){
+                    
+                    UIAlertView *alert = [[UIAlertView alloc]
+                                          initWithTitle: @"Error"
+                                          message: @"You must be at one of the Fleet Feet locations to check in to a class."
+                                          delegate: nil
+                                          cancelButtonTitle:@"OK"
+                                          otherButtonTitles:nil];
+                    [alert show];
+                    [alert release];
+                    
+                }
+                
                 
             }
-        
-        
         }
-    }
     }    //if([CLLocationManager locationServicesEnabled])     
     else
     {
         
         UIAlertView *alert = [[UIAlertView alloc]
                               initWithTitle: @"Error"
-                              message: @"You must allow location services to use this app."
+                              message: @"You must allow location services to use this app to check in to a class."
                               delegate: nil
                               cancelButtonTitle:@"OK"
                               otherButtonTitles:nil];
         [alert show];
         [alert release];
-    
+        
     }
+    
+    [pool drain];
+    
+
     
     [self hideLoadingIndicator];
     self.navigationItem.rightBarButtonItem.enabled = YES;
-    
-    }
 
-    -(void)showLoadingIndicator{
+}
+
+-(void)showLoadingIndicator{
         rView = [[UIImageView alloc] initWithFrame:CGRectMake(80, 110, 164, 164)];
         [rView setImage:[UIImage imageNamed:@"spinnerBackground.png"]];
-        spinnerView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(62, 50, 40, 40)];
+        spinnerView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(62, 60, 40, 40)];
         [spinnerView setActivityIndicatorViewStyle:UIActivityIndicatorViewStyleWhiteLarge];
         [spinnerView startAnimating];
         [rView addSubview:spinnerView];

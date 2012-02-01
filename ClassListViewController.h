@@ -17,9 +17,6 @@
     IBOutlet UITableView *myTableView;
     UIActivityIndicatorView *spinnerView;
     UIImageView *rView;
-    
-    
-    
 }
 
 @property (nonatomic, retain) UITableView* myTableView;
@@ -32,6 +29,7 @@
 -(void) checkInToClass:(id) sender;
 -(void) showLoadingIndicator;
 -(void) hideLoadingIndicator;
+-(void) checkInToClassBackground;
 
 
 @end
