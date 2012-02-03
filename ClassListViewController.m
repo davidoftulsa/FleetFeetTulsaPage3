@@ -3,7 +3,6 @@
 //  FleetFeetTulsaPage3
 //
 //  Created by David Wright on 1/26/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
 #import <Parse/Parse.h>
 #import "ClassListViewController.h"
@@ -13,20 +12,27 @@
 
 @implementation ClassListViewController
 
-@synthesize myTableView,customerClasses,locationManager,myLocation;
+@synthesize myTableView,locationManager,myLocation,classesCheckIns, customerId, customerCalendarClasses, customerClassesToday, customerRegisteredClasses;
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
+        
         self.locationManager = [[[CLLocationManager alloc] init] autorelease];
         self.locationManager.delegate = self; // send loc updates to myself
-        [self.locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
+        [self.locationManager setDesiredAccuracy:kCLLocationAccuracyNearestTenMeters];
+        [self.locationManager setDistanceFilter:100.0f];
         [self.locationManager startUpdatingLocation];
         self.myLocation = [[CLLocation alloc] init];
+        self.customerRegisteredClasses = [[NSMutableArray alloc] init];
+        self.customerCalendarClasses = [[NSMutableArray alloc] init];
         [self.tableView setRowHeight:76];
         
-    }
+      
+    } 
+    
+    
+    
     return self;
 }
 
@@ -44,7 +50,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    [self fetchCustomerClasses];
+
     self.title = @"My Classes";
     
     UIBarButtonItem *checkInButton = [[UIBarButtonItem alloc] initWithTitle:@"Check In" style:UIBarButtonItemStylePlain target:self action:@selector(checkInToClass:)];
@@ -54,12 +60,30 @@
 
     [self showLoadingIndicator];
     
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [self setCustomerId:appDelegate.customerId];
+    [self fetchCustomerClasses];
+    
+    //customerAvailableClasses = [[CustomerAvailableClasses alloc] initWithCustomerId:appDelegate.customerId];
+    
+    //[self setCustomerClassesArray:customerAvailableClasses.customerCalendarClasses];
+    
+    //NSLog(@"customerClassesCount: %d",[self.customerClassesArray count]);
+    
+    //[self.tableView reloadData];
+    
+    
+    
+    
+    
     // Do any additional setup after loading the view from its nib.
 }
 
 - (void)viewDidUnload
 {
     [super viewDidUnload];
+    
+    [self.locationManager stopUpdatingLocation];
     // Release any retained subviews of the main view.
     // e.g. self.myOutlet = nil;
 }
@@ -83,7 +107,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    return customerClasses.count;
+    return customerCalendarClasses.count;
     
 }
 
@@ -108,7 +132,8 @@
 		}
 	}
     
-    PFObject *customerClass = [customerClasses objectAtIndex:indexPath.row];
+    //PFObject *customerClass = [customerClassesArray objectAtIndex:indexPath.row];
+    PFObject *customerClass = [customerCalendarClasses objectAtIndex:indexPath.row];
     NSString *classTitle = [customerClass objectForKey:@"ClassTitle"];
     NSString *classLocationName = [customerClass objectForKey:@"ClassLocationName"];
     NSString *classDateString = [customerClass objectForKey:@"ClassDate"]; 
@@ -118,7 +143,7 @@
     NSDateFormatter *df1 = [[NSDateFormatter alloc] init];
     [df1 setLocale:enUSPOSIXLocale];
     
-    [df1 setDateFormat:@"MM/dd/yyyy HHmm"];
+    [df1 setDateFormat:@"yyyyMMdd HHmm"];
     NSDate *classDateTime = [df1 dateFromString:[NSString stringWithFormat:@"%@ %@",classDateString,classTimeString]];
     
     [df1 setDateFormat:@"MM/dd/yyyy  hh:mm a"];
@@ -140,35 +165,6 @@
 - (void)tableView: (UITableView *)tableView didSelectRowAtIndexPath: (NSIndexPath *)indexPath 
 {
     self.navigationItem.rightBarButtonItem.enabled = YES;
-}
-
-
-
-- (void)fetchCustomerClasses
-{
- 
-    
-    PFQuery *query = [PFQuery queryWithClassName:@"ClassCalendar"];
-    [query whereKey:@"ClassId" equalTo:@"aaaa"];
-    [query whereKey:@"ClassTermId" equalTo:@"aaaa"];
-    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
-        if (!error) {
-            // The find succeeded.
-            [self setCustomerClasses:objects];
-            
-            [myTableView reloadData];
-            
-            [self hideLoadingIndicator];
-            
-            
-        } else {
-            // Log details of the failure
-            NSLog(@"Error: %@ %@", error, [error userInfo]);
-        }
-    }];
-    
-    
- 
 }
 
 
@@ -210,7 +206,7 @@
     BOOL userAtValidLocation =  NO;
     AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
-    PFObject *customerClass = [customerClasses objectAtIndex:[[myTableView indexPathForSelectedRow] row]];
+    PFObject *customerClass = [customerCalendarClasses objectAtIndex:[[myTableView indexPathForSelectedRow] row]];
     
     PFQuery *checkInQuery = [PFQuery queryWithClassName:@"CheckIn"];
     [checkInQuery whereKey:@"ClassOfferingId" equalTo:[customerClass objectForKey:@"ClassOfferingId"]];
@@ -317,18 +313,92 @@
         
     }
     
-    [pool drain];
-    
-
     
     [self hideLoadingIndicator];
     self.navigationItem.rightBarButtonItem.enabled = YES;
+    
+    [pool drain];
 
 }
 
+
+-(void) fetchCustomerClasses{
+    
+    PFQuery *query = [PFQuery queryWithClassName:@"ClassRegistration"];
+    [query whereKey:@"CustomerId" equalTo:self.customerId];
+    [query findObjectsInBackgroundWithBlock:^(NSArray *objects, NSError *error) {
+       
+        if (!error) {
+
+        
+            for(PFObject *po in objects){
+
+                [self.customerRegisteredClasses addObject:[po objectForKey:@"ClassOfferingId"]];
+            }
+            
+            
+            NSDateFormatter *df1 = [[NSDateFormatter alloc] init];
+            
+            [df1 setDateFormat:@"yyyyMMdd"];
+            
+            NSString *dateString = [df1 stringFromDate:[NSDate date]];
+            
+            
+            PFQuery *query = [PFQuery queryWithClassName:@"ClassOffering"];
+            [query whereKey:@"objectId" containedIn:customerRegisteredClasses];
+            [query whereKey:@"StartDate" lessThanOrEqualTo:dateString];
+            [query whereKey:@"EndDate" greaterThanOrEqualTo:dateString];
+            NSArray *customerClassOfferings = [query findObjects:nil];
+            
+            for(PFObject *pfo in customerClassOfferings){
+                
+                //NSLog(@"ClassId: %@", [pfo objectForKey:@"ClassId"]);
+                //NSLog(@"TermId: %@", [pfo objectForKey:@"TermId"]);
+                //NSLog(@"ClassDate: %@", dateString);
+                
+                
+                PFQuery *classCalendarQuery = [PFQuery queryWithClassName:@"ClassCalendar"];
+                [classCalendarQuery whereKey:@"ClassId" equalTo:[pfo objectForKey:@"ClassId"]];
+                [classCalendarQuery whereKey:@"ClassTermId" equalTo:[pfo objectForKey:@"TermId"]];
+                [classCalendarQuery whereKey:@"ClassDate" equalTo:dateString];
+                NSArray *customerClasses = [classCalendarQuery findObjects:nil];
+                
+                
+                
+                for(PFObject *pfo in customerClasses){
+                    [self.customerCalendarClasses addObject:pfo];
+                }
+            }
+
+            NSLog(@"customerCalendarClasses: %d", customerCalendarClasses.count );
+            
+            [self.tableView reloadData];
+            
+            [self hideLoadingIndicator];
+            
+            
+            
+            
+            
+            
+            
+           // [self fetchCustomerClassesToday];
+            
+        } else {
+            // Log details of the failure
+            NSLog(@"Error: %@ %@", error, [error userInfo]);
+        }
+    }];
+    
+    
+}
+
+    
+    
 -(void)showLoadingIndicator{
         rView = [[UIImageView alloc] initWithFrame:CGRectMake(80, 110, 164, 164)];
         [rView setImage:[UIImage imageNamed:@"spinnerBackground.png"]];
+        //[rView setBackgroundColor:[UIColor lightGrayColor]];
         spinnerView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(62, 60, 40, 40)];
         [spinnerView setActivityIndicatorViewStyle:UIActivityIndicatorViewStyleWhiteLarge];
         [spinnerView startAnimating];
@@ -345,6 +415,8 @@
 
 
 - (void)dealloc {
+    [self.customerRegisteredClasses release];
+    [self.customerClassesToday release];
     [self.locationManager release];
     [self.myLocation release];
     [super dealloc];

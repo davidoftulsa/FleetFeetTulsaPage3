@@ -9,27 +9,43 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 
+
 @interface ClassListViewController : UITableViewController <CLLocationManagerDelegate>
 {
-    NSArray *customerClasses;
+    NSArray *classCheckIns;
     CLLocationManager *locationManager;
     CLLocation *myLocation;
     IBOutlet UITableView *myTableView;
     UIActivityIndicatorView *spinnerView;
     UIImageView *rView;
+    
+    NSString *customerId;
+    NSMutableArray *customerRegisteredClasses;
+    NSArray *customerClassesToday;
+    NSMutableArray *customerCalendarClasses;
 }
 
 @property (nonatomic, retain) UITableView* myTableView;
-@property (nonatomic, retain) NSArray *customerClasses;
+
+@property (nonatomic, retain) NSArray *classesCheckIns;
 @property (nonatomic, retain) CLLocationManager *locationManager;
 @property (nonatomic, retain) CLLocation *myLocation;
 
+@property (nonatomic, retain) NSString *customerId;
+@property (nonatomic, retain) NSMutableArray *customerRegisteredClasses;
+@property (nonatomic, retain) NSArray *customerClassesToday;
+@property (nonatomic, retain) NSMutableArray *customerCalendarClasses;
 
--(void) fetchCustomerClasses;
+
 -(void) checkInToClass:(id) sender;
 -(void) showLoadingIndicator;
 -(void) hideLoadingIndicator;
 -(void) checkInToClassBackground;
+
+//-(id) initWithCustomerId:(NSString *) cid;
+-(void) fetchCustomerClasses;
+//-(void) fetchCustomerClassesToday;
+
 
 
 @end

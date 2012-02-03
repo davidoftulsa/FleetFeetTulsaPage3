@@ -86,7 +86,6 @@
 			children = (
 				9F6197A414D42A7F00913317 /* Resources */,
 				9F36EBE814D085B200EC15F5 /* FleetFeetTulsaPage3 */,
-				9F36EBE114D085B200EC15F5 /* Frameworks */,
 				9F36EBDF14D085B200EC15F5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -116,6 +115,7 @@
 				9F36EBE614D085B200EC15F5 /* CoreGraphics.framework */,
 			);
 			name = Frameworks;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		9F36EBE814D085B200EC15F5 /* FleetFeetTulsaPage3 */ = {
@@ -130,6 +130,7 @@
 				9F36EBF114D085B200EC15F5 /* AppDelegate.h */,
 				9F36EBF214D085B200EC15F5 /* AppDelegate.m */,
 				9F36EBE914D085B200EC15F5 /* Supporting Files */,
+				9F36EBE114D085B200EC15F5 /* Frameworks */,
 			);
 			path = FleetFeetTulsaPage3;
 			sourceTree = "<group>";
