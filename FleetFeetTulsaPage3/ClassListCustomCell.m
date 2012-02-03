@@ -10,7 +10,7 @@
 
 @implementation ClassListCustomCell
 
-@synthesize classTitleLabel,classLocationLabel,classDateTimeLabel;
+@synthesize classTitleLabel,classLocationLabel,classDateTimeLabel, checkmarkImage;
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {

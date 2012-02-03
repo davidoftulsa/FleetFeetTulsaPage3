@@ -12,7 +12,15 @@
 
 @implementation ClassListViewController
 
-@synthesize myTableView,locationManager,myLocation,classesCheckIns, customerId, customerCalendarClasses, customerClassesToday, customerRegisteredClasses;
+@synthesize myTableView;
+@synthesize locationManager;
+@synthesize myLocation;
+@synthesize classesCheckIns;
+@synthesize customerId;
+@synthesize customerCalendarClasses;
+@synthesize customerClassesToday;
+@synthesize customerRegisteredClasses;
+@synthesize customerClassCheckIns;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -132,12 +140,21 @@
 		}
 	}
     
-    //PFObject *customerClass = [customerClassesArray objectAtIndex:indexPath.row];
+    
     PFObject *customerClass = [customerCalendarClasses objectAtIndex:indexPath.row];
     NSString *classTitle = [customerClass objectForKey:@"ClassTitle"];
     NSString *classLocationName = [customerClass objectForKey:@"ClassLocationName"];
     NSString *classDateString = [customerClass objectForKey:@"ClassDate"]; 
-    NSString *classTimeString = [customerClass objectForKey:@"ClassTime"]; 
+    NSString *classTimeString = [customerClass objectForKey:@"ClassTime"];
+    
+    BOOL hideCheckmarkImage = YES;
+     for(PFObject *pfo in self.customerClassCheckIns)
+     {
+         if ([[pfo objectForKey:@"ClassOfferingId"] isEqualToString:[customerClass objectForKey:@"ClassOfferingId"]])
+             hideCheckmarkImage = NO;
+     }
+    
+    
     
     NSLocale *enUSPOSIXLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
     NSDateFormatter *df1 = [[NSDateFormatter alloc] init];
@@ -152,6 +169,7 @@
     cell.classTitleLabel.text = classTitle;
     cell.classLocationLabel.text = classLocationName;
     cell.classDateTimeLabel.text = classDateTimeString;
+    [cell.checkmarkImage setHidden:hideCheckmarkImage];
     
     [enUSPOSIXLocale release];
     [df1 release];
@@ -173,7 +191,6 @@
            fromLocation:(CLLocation *)oldLocation
 {
     self.myLocation = newLocation;
-    NSLog(@"Location: %@", [newLocation description]);
 }
 
 - (void)locationManager:(CLLocationManager *)manager
@@ -208,29 +225,33 @@
     
     PFObject *customerClass = [customerCalendarClasses objectAtIndex:[[myTableView indexPathForSelectedRow] row]];
     
-    PFQuery *checkInQuery = [PFQuery queryWithClassName:@"CheckIn"];
-    [checkInQuery whereKey:@"ClassOfferingId" equalTo:[customerClass objectForKey:@"ClassOfferingId"]];
-    [checkInQuery whereKey:@"CustomerId" equalTo:appDelegate.customerId];
-    NSArray *existingCheckIns= [checkInQuery findObjects:nil];
+    //PFQuery *checkInQuery = [PFQuery queryWithClassName:@"CheckIn"];
+    //[checkInQuery whereKey:@"ClassOfferingId" equalTo:[customerClass objectForKey:@"ClassOfferingId"]];
+    //[checkInQuery whereKey:@"CustomerId" equalTo:appDelegate.customerId];
+    //NSArray *existingCheckIns= [checkInQuery findObjects:nil];
     
-    for (PFObject *pfo in existingCheckIns)
+    for (PFObject *pfo in customerClassCheckIns)
     {
-        //check to see if any of the objects were created today.  if so then alert the user that this is a duplicate checkin
         
-        NSLocale *enUSPOSIXLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
-        NSDateFormatter *df1 = [[NSDateFormatter alloc] init];
-        [df1 setLocale:enUSPOSIXLocale];
-        
-        [df1 setDateFormat:@"MM/dd/yyyy"];
-        
-        NSLog(@"today:%@",[df1 stringFromDate:[NSDate date]]);
-        NSLog(@"check in record:%@",[df1 stringFromDate:pfo.createdAt]);
-        
-        NSString *todayDateString = [df1 stringFromDate:[NSDate date]];
-        
-        if ([todayDateString isEqualToString:[df1 stringFromDate:pfo.createdAt]] == YES ){
+        if ([pfo objectForKey:@"ClassOfferingId"] == [customerClass objectForKey:@"ClassOfferingId"]){
             existingCheckIn = YES;
         }
+        //check to see if any of the objects were created today.  if so then alert the user that this is a duplicate checkin
+        
+        //NSLocale *enUSPOSIXLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+        //NSDateFormatter *df1 = [[NSDateFormatter alloc] init];
+        //[df1 setLocale:enUSPOSIXLocale];
+        
+        //[df1 setDateFormat:@"MM/dd/yyyy"];
+        
+        //NSLog(@"today:%@",[df1 stringFromDate:[NSDate date]]);
+        //NSLog(@"check in record:%@",[df1 stringFromDate:pfo.createdAt]);
+        
+        //NSString *todayDateString = [df1 stringFromDate:[NSDate date]];
+        
+        //if ([todayDateString isEqualToString:[df1 stringFromDate:pfo.createdAt]] == YES ){
+        //    existingCheckIn = YES;
+        //}
     }
     
     
@@ -243,7 +264,7 @@
         // Create a query for places
         PFQuery *query = [PFQuery queryWithClassName:@"Locations"];
         // Interested in locations near user.
-        [query whereKey:@"Coordinates" nearGeoPoint:userPoint withinKilometers:1];
+        [query whereKey:@"Coordinates" nearGeoPoint:userPoint withinKilometers:10];
         // Limit what could be a lot of points.
         //query.limit = [NSNumber numberWithInt:10];
         // Final list of objects
@@ -253,12 +274,22 @@
             userAtValidLocation=YES;
         
         
+        
+        
+        
         if (existingCheckIn==NO && userAtValidLocation==YES){
-            PFObject *gameScore = [PFObject objectWithClassName:@"CheckIn"];
-            [gameScore setObject:[customerClass objectForKey:@"ClassOfferingId"] forKey:@"ClassOfferingId"];
-            [gameScore setObject:appDelegate.customerId forKey:@"CustomerId"];
-            [gameScore setObject:@"MgEUZbw6tB" forKey:@"LocationId"];
-            [gameScore save];
+            
+            NSDateFormatter *df1 = [[NSDateFormatter alloc] init];
+            
+            PFObject *newCheckIn = [PFObject objectWithClassName:@"CheckIn"];
+            [newCheckIn setObject:[customerClass objectForKey:@"ClassOfferingId"] forKey:@"ClassOfferingId"];
+            [newCheckIn setObject:appDelegate.customerId forKey:@"CustomerId"];
+            [df1 setDateFormat:@"yyyyMMdd"];
+            [newCheckIn setObject:[df1 stringFromDate:[NSDate date]] forKey:@"CheckInDate"];
+            [df1 setDateFormat:@"HHmm"];
+            [newCheckIn setObject:[df1 stringFromDate:[NSDate date]] forKey:@"CheckInTime"];
+            [newCheckIn save];
+            [self.customerClassCheckIns addObject:newCheckIn];
             
             UIAlertView *alert = [[UIAlertView alloc]
                                   initWithTitle: @"Success"
@@ -266,6 +297,9 @@
                                   delegate: nil
                                   cancelButtonTitle:@"OK"
                                   otherButtonTitles:nil];
+            [self.tableView reloadData];
+            
+            [df1 release];
             [alert show];
             [alert release];
         } else {
@@ -369,20 +403,24 @@
                     [self.customerCalendarClasses addObject:pfo];
                 }
             }
+            
+            NSLog(@"customer id: %@", self.customerId);
+            NSLog(@"class date: %@", dateString);
 
-            NSLog(@"customerCalendarClasses: %d", customerCalendarClasses.count );
+            PFQuery *customerClassCheckInsQuery = [PFQuery queryWithClassName:@"CheckIn"];
+            [customerClassCheckInsQuery whereKey:@"CustomerId" equalTo:self.customerId];
+            [customerClassCheckInsQuery whereKey:@"CheckInDate" equalTo:dateString];
+           
+            [self setCustomerClassCheckIns: [NSMutableArray arrayWithArray:[customerClassCheckInsQuery findObjects:nil]]];
+            
+            NSLog(@"customerCheckIns: %d",self.customerClassCheckIns.count);
+            
+            
             
             [self.tableView reloadData];
             
             [self hideLoadingIndicator];
             
-            
-            
-            
-            
-            
-            
-           // [self fetchCustomerClassesToday];
             
         } else {
             // Log details of the failure

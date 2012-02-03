@@ -13,9 +13,11 @@
 @interface ClassListViewController : UITableViewController <CLLocationManagerDelegate>
 {
     NSArray *classCheckIns;
+    NSMutableArray *customerClassCheckIns;
     CLLocationManager *locationManager;
     CLLocation *myLocation;
     IBOutlet UITableView *myTableView;
+
     UIActivityIndicatorView *spinnerView;
     UIImageView *rView;
     
@@ -26,11 +28,10 @@
 }
 
 @property (nonatomic, retain) UITableView* myTableView;
-
 @property (nonatomic, retain) NSArray *classesCheckIns;
+@property (nonatomic, retain) NSMutableArray *customerClassCheckIns;
 @property (nonatomic, retain) CLLocationManager *locationManager;
 @property (nonatomic, retain) CLLocation *myLocation;
-
 @property (nonatomic, retain) NSString *customerId;
 @property (nonatomic, retain) NSMutableArray *customerRegisteredClasses;
 @property (nonatomic, retain) NSArray *customerClassesToday;
@@ -41,10 +42,8 @@
 -(void) showLoadingIndicator;
 -(void) hideLoadingIndicator;
 -(void) checkInToClassBackground;
-
-//-(id) initWithCustomerId:(NSString *) cid;
 -(void) fetchCustomerClasses;
-//-(void) fetchCustomerClassesToday;
+
 
 
 

@@ -11,12 +11,14 @@
 @interface ClassListCustomCell : UITableViewCell{
     IBOutlet UILabel *classTitleLabel;
     IBOutlet UILabel *classLocationLabel;    
-    IBOutlet UILabel *classDateTimeLabel;    
+    IBOutlet UILabel *classDateTimeLabel;  
+    IBOutlet UIImageView *checkmarkImage;
 }
 
 @property (nonatomic,retain) UILabel *classTitleLabel;
 @property (nonatomic,retain) UILabel *classLocationLabel;
 @property (nonatomic,retain) UILabel *classDateTimeLabel;
+@property (nonatomic,retain) UIImageView *checkmarkImage;
 
 
 
