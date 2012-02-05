@@ -22,6 +22,7 @@
 		9F36EC0C14D08E9900EC15F5 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F36EC0B14D08E9900EC15F5 /* Security.framework */; };
 		9F36EC0E14D08EA600EC15F5 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F36EC0D14D08EA600EC15F5 /* QuartzCore.framework */; };
 		9F5582FD14DC348F008FC47E /* checkmark.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F5582FC14DC348F008FC47E /* checkmark.png */; };
+		9F5582FF14DE2D33008FC47E /* checkMarkNoBackGround.png in Resources */ = {isa = PBXBuildFile; fileRef = 9F5582FE14DE2D33008FC47E /* checkMarkNoBackGround.png */; };
 		9F61979314D3618100913317 /* ClassListCustomCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F61979214D3618100913317 /* ClassListCustomCell.m */; };
 		9F61979514D3623A00913317 /* ClassListCustomCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9F61979414D3623A00913317 /* ClassListCustomCell.xib */; };
 		9F61979714D3979700913317 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F61979614D3979700913317 /* CoreLocation.framework */; };
@@ -50,6 +51,7 @@
 		9F36EC0B14D08E9900EC15F5 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		9F36EC0D14D08EA600EC15F5 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		9F5582FC14DC348F008FC47E /* checkmark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkmark.png; sourceTree = "<group>"; };
+		9F5582FE14DE2D33008FC47E /* checkMarkNoBackGround.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkMarkNoBackGround.png; sourceTree = "<group>"; };
 		9F61979114D3618100913317 /* ClassListCustomCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassListCustomCell.h; sourceTree = "<group>"; };
 		9F61979214D3618100913317 /* ClassListCustomCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClassListCustomCell.m; sourceTree = "<group>"; };
 		9F61979414D3623A00913317 /* ClassListCustomCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ClassListCustomCell.xib; sourceTree = "<group>"; };
@@ -151,6 +153,7 @@
 		9F6197A414D42A7F00913317 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				9F5582FE14DE2D33008FC47E /* checkMarkNoBackGround.png */,
 				9F5582FC14DC348F008FC47E /* checkmark.png */,
 				9F6197A514D42A9700913317 /* spinnerBackground.png */,
 			);
@@ -212,6 +215,7 @@
 				9F61979514D3623A00913317 /* ClassListCustomCell.xib in Resources */,
 				9F6197A614D42A9700913317 /* spinnerBackground.png in Resources */,
 				9F5582FD14DC348F008FC47E /* checkmark.png in Resources */,
+				9F5582FF14DE2D33008FC47E /* checkMarkNoBackGround.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

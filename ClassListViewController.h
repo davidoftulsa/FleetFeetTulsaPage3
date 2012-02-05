@@ -38,6 +38,7 @@
 @property (nonatomic, retain) NSMutableArray *customerCalendarClasses;
 
 
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil andCustomerId:(NSString *) cid;
 -(void) checkInToClass:(id) sender;
 -(void) showLoadingIndicator;
 -(void) hideLoadingIndicator;

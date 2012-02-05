@@ -124,7 +124,7 @@
 								<reference key="IBUIFontDescription" ref="830691948"/>
 								<reference key="IBUIFont" ref="854098434"/>
 							</object>
-							<object class="IBUIImageView" id="762835605">
+							<object class="IBUIImageView" id="869766040">
 								<reference key="NSNextResponder" ref="843815975"/>
 								<int key="NSvFlags">292</int>
 								<string key="NSFrame">{{244, 4}, {67, 67}}</string>
@@ -136,7 +136,7 @@
 								<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>
 								<object class="NSCustomResource" key="IBUIImage">
 									<string key="NSClassName">NSImage</string>
-									<string key="NSResourceName">checkmark.png</string>
+									<string key="NSResourceName">checkMarkNoBackGround.png</string>
 								</object>
 							</object>
 						</array>
@@ -195,7 +195,7 @@
 					<object class="IBCocoaTouchOutletConnection" key="connection">
 						<string key="label">checkmarkImage</string>
 						<reference key="source" ref="225607032"/>
-						<reference key="destination" ref="762835605"/>
+						<reference key="destination" ref="869766040"/>
 					</object>
 					<int key="connectionID">12</int>
 				</object>
@@ -226,7 +226,7 @@
 							<reference ref="853407822"/>
 							<reference ref="786125512"/>
 							<reference ref="414613238"/>
-							<reference ref="762835605"/>
+							<reference ref="869766040"/>
 						</array>
 						<reference key="parent" ref="0"/>
 						<string key="objectName">ClassListCustomCell</string>
@@ -248,7 +248,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">11</int>
-						<reference key="object" ref="762835605"/>
+						<reference key="object" ref="869766040"/>
 						<reference key="parent" ref="225607032"/>
 					</object>
 				</array>
@@ -311,8 +311,8 @@
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<object class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
-			<string key="NS.key.0">checkmark.png</string>
-			<string key="NS.object.0">{155, 156}</string>
+			<string key="NS.key.0">checkMarkNoBackGround.png</string>
+			<string key="NS.object.0">{154, 154}</string>
 		</object>
 		<string key="IBCocoaTouchPluginVersion">933</string>
 	</data>

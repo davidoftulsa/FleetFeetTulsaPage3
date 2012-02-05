@@ -7,7 +7,7 @@
 #import <Parse/Parse.h>
 #import "ClassListViewController.h"
 #import "ClassListCustomCell.h"
-#import "AppDelegate.h"
+//#import "AppDelegate.h"
 
 
 @implementation ClassListViewController
@@ -22,7 +22,7 @@
 @synthesize customerRegisteredClasses;
 @synthesize customerClassCheckIns;
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil andCustomerId:(NSString *) cid  {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         
@@ -34,12 +34,12 @@
         self.myLocation = [[CLLocation alloc] init];
         self.customerRegisteredClasses = [[NSMutableArray alloc] init];
         self.customerCalendarClasses = [[NSMutableArray alloc] init];
+        self.customerId = [NSString stringWithString:cid];
+        [self setCustomerId:cid];
         [self.tableView setRowHeight:76];
         
       
     } 
-    
-    
     
     return self;
 }
@@ -68,8 +68,8 @@
 
     [self showLoadingIndicator];
     
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [self setCustomerId:appDelegate.customerId];
+    //AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    //[self setCustomerId:appDelegate.customerId];
     [self fetchCustomerClasses];
     
     //customerAvailableClasses = [[CustomerAvailableClasses alloc] initWithCustomerId:appDelegate.customerId];
@@ -221,7 +221,7 @@
     
     BOOL existingCheckIn =  NO;
     BOOL userAtValidLocation =  NO;
-    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    //AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     PFObject *customerClass = [customerCalendarClasses objectAtIndex:[[myTableView indexPathForSelectedRow] row]];
     
@@ -236,22 +236,7 @@
         if ([pfo objectForKey:@"ClassOfferingId"] == [customerClass objectForKey:@"ClassOfferingId"]){
             existingCheckIn = YES;
         }
-        //check to see if any of the objects were created today.  if so then alert the user that this is a duplicate checkin
         
-        //NSLocale *enUSPOSIXLocale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
-        //NSDateFormatter *df1 = [[NSDateFormatter alloc] init];
-        //[df1 setLocale:enUSPOSIXLocale];
-        
-        //[df1 setDateFormat:@"MM/dd/yyyy"];
-        
-        //NSLog(@"today:%@",[df1 stringFromDate:[NSDate date]]);
-        //NSLog(@"check in record:%@",[df1 stringFromDate:pfo.createdAt]);
-        
-        //NSString *todayDateString = [df1 stringFromDate:[NSDate date]];
-        
-        //if ([todayDateString isEqualToString:[df1 stringFromDate:pfo.createdAt]] == YES ){
-        //    existingCheckIn = YES;
-        //}
     }
     
     
@@ -264,18 +249,15 @@
         // Create a query for places
         PFQuery *query = [PFQuery queryWithClassName:@"Locations"];
         // Interested in locations near user.
-        [query whereKey:@"Coordinates" nearGeoPoint:userPoint withinKilometers:10];
+        [query whereKey:@"Coordinates" nearGeoPoint:userPoint withinKilometers:50];
         // Limit what could be a lot of points.
         //query.limit = [NSNumber numberWithInt:10];
         // Final list of objects
-        NSArray *placesObjects = [query findObjects];
+        //NSArray *placesObjects = [query findObjects];
+        NSNumber *placesObjects  = [NSNumber numberWithInt:[query countObjects]];
         
-        if(placesObjects.count>0)
+        if([placesObjects intValue ]>0)
             userAtValidLocation=YES;
-        
-        
-        
-        
         
         if (existingCheckIn==NO && userAtValidLocation==YES){
             
@@ -283,7 +265,8 @@
             
             PFObject *newCheckIn = [PFObject objectWithClassName:@"CheckIn"];
             [newCheckIn setObject:[customerClass objectForKey:@"ClassOfferingId"] forKey:@"ClassOfferingId"];
-            [newCheckIn setObject:appDelegate.customerId forKey:@"CustomerId"];
+            //[newCheckIn setObject:appDelegate.customerId forKey:@"CustomerId"];
+            [newCheckIn setObject:self.customerId forKey:@"CustomerId"];
             [df1 setDateFormat:@"yyyyMMdd"];
             [newCheckIn setObject:[df1 stringFromDate:[NSDate date]] forKey:@"CheckInDate"];
             [df1 setDateFormat:@"HHmm"];
@@ -338,7 +321,7 @@
         
         UIAlertView *alert = [[UIAlertView alloc]
                               initWithTitle: @"Error"
-                              message: @"You must allow location services to use this app to check in to a class."
+                              message: @"You must allow location services to check-in to a class.  You can enable location services in the settings of your mobile device."
                               delegate: nil
                               cancelButtonTitle:@"OK"
                               otherButtonTitles:nil];

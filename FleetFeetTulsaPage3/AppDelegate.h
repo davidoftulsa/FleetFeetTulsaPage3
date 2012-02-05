@@ -17,6 +17,6 @@
 
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) ClassListViewController *classListViewController;
-@property (strong, nonatomic) NSString *customerId;
+
 
 @end
