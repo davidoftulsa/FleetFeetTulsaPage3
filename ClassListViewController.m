@@ -68,19 +68,7 @@
 
     [self showLoadingIndicator];
     
-    //AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    //[self setCustomerId:appDelegate.customerId];
     [self fetchCustomerClasses];
-    
-    //customerAvailableClasses = [[CustomerAvailableClasses alloc] initWithCustomerId:appDelegate.customerId];
-    
-    //[self setCustomerClassesArray:customerAvailableClasses.customerCalendarClasses];
-    
-    //NSLog(@"customerClassesCount: %d",[self.customerClassesArray count]);
-    
-    //[self.tableView reloadData];
-    
-    
     
     
     
@@ -265,7 +253,6 @@
             
             PFObject *newCheckIn = [PFObject objectWithClassName:@"CheckIn"];
             [newCheckIn setObject:[customerClass objectForKey:@"ClassOfferingId"] forKey:@"ClassOfferingId"];
-            //[newCheckIn setObject:appDelegate.customerId forKey:@"CustomerId"];
             [newCheckIn setObject:self.customerId forKey:@"CustomerId"];
             [df1 setDateFormat:@"yyyyMMdd"];
             [newCheckIn setObject:[df1 stringFromDate:[NSDate date]] forKey:@"CheckInDate"];
@@ -369,26 +356,19 @@
             
             for(PFObject *pfo in customerClassOfferings){
                 
-                //NSLog(@"ClassId: %@", [pfo objectForKey:@"ClassId"]);
-                //NSLog(@"TermId: %@", [pfo objectForKey:@"TermId"]);
-                //NSLog(@"ClassDate: %@", dateString);
-                
-                
                 PFQuery *classCalendarQuery = [PFQuery queryWithClassName:@"ClassCalendar"];
                 [classCalendarQuery whereKey:@"ClassId" equalTo:[pfo objectForKey:@"ClassId"]];
                 [classCalendarQuery whereKey:@"ClassTermId" equalTo:[pfo objectForKey:@"TermId"]];
                 [classCalendarQuery whereKey:@"ClassDate" equalTo:dateString];
                 NSArray *customerClasses = [classCalendarQuery findObjects:nil];
                 
-                
-                
                 for(PFObject *pfo in customerClasses){
                     [self.customerCalendarClasses addObject:pfo];
                 }
             }
             
-            NSLog(@"customer id: %@", self.customerId);
-            NSLog(@"class date: %@", dateString);
+            //NSLog(@"customer id: %@", self.customerId);
+            //NSLog(@"class date: %@", dateString);
 
             PFQuery *customerClassCheckInsQuery = [PFQuery queryWithClassName:@"CheckIn"];
             [customerClassCheckInsQuery whereKey:@"CustomerId" equalTo:self.customerId];
@@ -396,7 +376,7 @@
            
             [self setCustomerClassCheckIns: [NSMutableArray arrayWithArray:[customerClassCheckInsQuery findObjects:nil]]];
             
-            NSLog(@"customerCheckIns: %d",self.customerClassCheckIns.count);
+            //NSLog(@"customerCheckIns: %d",self.customerClassCheckIns.count);
             
             
             
